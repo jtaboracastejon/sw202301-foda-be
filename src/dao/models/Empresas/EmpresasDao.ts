@@ -1,11 +1,9 @@
-import { IDBConnection } from "@dao/IDBConnection";
 import { MongoDAOBase } from "@dao/MongoDAOBase";
-import { IEmpresa } from "./iEmpresas";
+import { IDBConnection } from "@server/dao/IDBConnection";
+import { IEmpresa } from "./IEmpresas";
 
 export class EmpresasDao extends MongoDAOBase<IEmpresa>{
-    constructor(conexion: IDBConnection){
-        conexion.getConnection().then((db)=>{
-            super("empresas", db);
-        })
+    constructor(conexion: IDBConnection) {
+        super("empresas", conexion);
     }
 }

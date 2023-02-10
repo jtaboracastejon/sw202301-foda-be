@@ -1,31 +1,32 @@
-import { IEmpresa } from "@dao/models/Empresas/iEmpresas";
-import { IDataAccessObject } from "@dao/IDataAccessObjects";
-export class Empresas{
+import { IEmpresa } from "@dao/models/Empresas/IEmpresas";
+import { IDataAccessObject } from "@dao/IDataAccessObject";
+export class Empresas {
     private dao: IDataAccessObject;
-    constructor(dao:IDataAccessObject){
+    constructor(dao: IDataAccessObject) {
         this.dao = dao;
     }
-    getAll(){
+    getAll() {
         return this.dao.findAll();
     }
-    getById(id: string){
+    getById(id: string) {
         return this.dao.findById(id);
     }
-    add(nuevaEmpresa : IEmpresa){
+    add(nuevaEmpresa: IEmpresa) {
         const date = new Date();
         const nueva: IEmpresa = {
-            ...nuevaEmpresa, 
-            created: date, 
+            ...nuevaEmpresa,
+            created: date,
             updated: date
-        };
+        }
         return this.dao.create(nueva);
     }
-    update(id : string, updateEmpresa : IEmpresa){
-        const updateObj = {...updateEmpresa, updated: new Date()};
-        return this.dao.update(id, updateObj);
-        
+
+    update(id: string, updateEmpresa: IEmpresa) {
+        const updateObject = { ...updateEmpresa, updated: new Date() };
+        return this.dao.update(id, updateObject);
     }
-    delete(id: string){
+
+    delete(id: string) {
         return this.dao.delete(id);
     }
 }
