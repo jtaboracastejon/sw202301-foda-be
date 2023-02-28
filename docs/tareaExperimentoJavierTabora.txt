@@ -1,0 +1,31 @@
+1.	Script
+var personas  = [];
+for (var i = 0; i < 20; i++){
+    var persona = {
+        nombre: 'Sujeto ' + (i+1),
+        edad: Math.ceil(Math.random() * (41 - 21) + 21),
+        correo: 'sujeto' + (i+1)+'@mail.com',
+        grupo: i < 4 ? 0 : i < 8 ? 1 : i < 12 ? 2 : i < 16 ? 3 : 4,
+        tratamiento: i < 4 ? 0 : i < 8 ? 2 : i < 12 ? 4 : i < 16 ? 12 : 20,
+        medicionSegs: Math.ceil(Math.random() * (80 - 10) + 10),
+    }
+    personas.push(persona);
+}
+db.experimento.insertMany(personas);
+
+2 Obtener el listado de todas las personas.
+db.experimento.find();
+
+3.	Obtener el listado de todas las personas ordenadas por edad de mayor a menor.
+var sortCmd = {edad: -1}
+db.experimento.find().sort(sortCmd)
+
+4. Obtener todas las persona del grupo 0 y todas las personas del grupo 5 solo mostrando el nombre, el tratamiento y la medición.
+var filter = {$or: [{grupo: 0}, {grupo: 5}]}
+var proyeccion = {nombre: 1, tratamiento: 1, medicionSegs: 1}
+db.experimento.find(filter, proyeccion);
+
+5.	Actualizar el segundo grupo y aumentar los segundos implementados por 5 segundos.
+var filter = {grupo: 1}
+var updateCmd = {$inc: {medicionSegs: 5}}
+db.experimento.updateMany(filter, updateCmd)
