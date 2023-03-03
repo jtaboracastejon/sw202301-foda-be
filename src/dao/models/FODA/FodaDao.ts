@@ -2,7 +2,7 @@ import { MongoDAOBase } from "@server/dao/MongoDAOBase";
 import { IDBConnection } from "@server/dao/IDBConnection";
 import { DefaultFoda, IFoda } from "./IFoda";
 import { IDataAccessObject } from "@dao/IDataAccessObject";
-import { ObjectId } from "mongodb";
+import { ObjectId, UpdateResult } from "mongodb";
 
 export class FodaDao extends MongoDAOBase<IFoda>{
     private empresaDao: IDataAccessObject;
@@ -24,5 +24,14 @@ export class FodaDao extends MongoDAOBase<IFoda>{
             ...{createdAt: new Date(), updatedAt: new Date()}
         };
         return super.create(newFoda)
+    }
+
+    public async updateCounter(fodaId: string | ObjectId, type: 'F'|'D'|'O'|'A') {
+        let oFodaId = typeof fodaId == 'string' ? new ObjectId(fodaId): fodaId;
+        let filter = {_id:oFodaId};
+        let updateCmd = {"$inc":{"entradas":1}, "$set": {"updatedAt":new Date()}};
+        updateCmd["$inc"][`${type}cantidad`] = 1;
+        console.log('updateCounter:', {updateCmd, oFodaId})
+        return super.rawUpdate(filter, updateCmd);
     }
 }

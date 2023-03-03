@@ -4,12 +4,12 @@ export interface IFoda extends IAuditable{
     _id?: ObjectId | String;
     nombre: string,
     owner: {
-        id: ObjectId,
+        id: ObjectId | string,
         usuario: string,
         email: string
     },
     empresa:{
-        id: ObjectId,
+        id: ObjectId | string,
         nombre: string
     },
     entradas: number,
@@ -38,8 +38,4 @@ export const DefaultFoda: IFoda = {
     Acantidad: 0,
     createdAt: new Date(),
     updatedAt: new Date()
-}
-
-export interface IFodaEntry{
-
 }

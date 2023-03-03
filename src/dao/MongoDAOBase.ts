@@ -1,4 +1,14 @@
-import { Db, Collection, ObjectId, Filter, OptionalUnlessRequiredId } from 'mongodb';
+import {
+  Db,
+  Collection,
+  Document,
+  ObjectId,
+  Filter,
+  OptionalUnlessRequiredId,
+  FindOptions,
+  AggregateOptions,
+  UpdateFilter
+} from 'mongodb';
 
 import { IDataAccessObject } from './IDataAccessObject';
 import { IDBConnection } from './IDBConnection';
@@ -35,12 +45,20 @@ export abstract class MongoDAOBase<T> implements IDataAccessObject {
     const _id = new ObjectId(id) as Filter<T>;
     return this.collection.deleteOne({ _id });
   }
-  findByFilter: Function;
-  findOneByFilter: Function;
-  aggregate: Function;
+  findByFilter(filter: Filter<T>, options: FindOptions<T> = {},) {
+    return this.collection.find(filter, options).toArray();
+  }
+  findOneByFilter(filter: Filter<T>, options: FindOptions<T> = {},) {
+    return this.collection.findOne(filter, options);
+  }
+  aggregate(stages: Document[], options: AggregateOptions) {
+    return this.collection.aggregate(stages, options).toArray();
+  }
   getConnection() {
     return this.connection;
   }
-  rawUpdate: Function;
+  rawUpdate(filter: Filter<T>, update: UpdateFilter<T>){
+    return this.collection.updateOne(filter, update);
+  }
 
 }
