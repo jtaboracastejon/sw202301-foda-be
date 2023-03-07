@@ -1,6 +1,6 @@
 import { MongoDAOBase } from "@server/dao/MongoDAOBase";
 import { IDBConnection } from "@server/dao/IDBConnection";
-import { DefaultFoda, IFoda } from "./IFoda";
+import { IFoda, DefaultFoda } from '@dao/models/FODA/IFoda';
 import { IDataAccessObject } from "@dao/IDataAccessObject";
 import { ObjectId, UpdateResult } from "mongodb";
 
@@ -11,7 +11,7 @@ export class FodaDao extends MongoDAOBase<IFoda>{
         this.empresaDao = empresaDao;
     }
 
-    public async create(foda:IFoda){
+    public async create(foda:Partial<IFoda>){
         const {empresa: {id}} = foda;
         if(!ObjectId.isValid(id)){
             throw Error("Empresa object Id not valid")

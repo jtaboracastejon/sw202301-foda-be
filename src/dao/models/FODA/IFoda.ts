@@ -1,6 +1,14 @@
 import { ObjectId } from "mongodb";
 import { IAuditable } from "../IAuditable";
-export interface IFoda extends IAuditable{
+
+export enum IFodaEstados {
+    Planning = "P",
+    Execution = "E",
+    Finished = "F",
+    Canceled = "C"
+}
+
+export interface IFoda extends IAuditable {
     _id?: ObjectId | String;
     nombre: string,
     owner: {
@@ -8,10 +16,11 @@ export interface IFoda extends IAuditable{
         usuario: string,
         email: string
     },
-    empresa:{
+    empresa: {
         id: ObjectId | string,
-        nombre: string
+        nombre?: string
     },
+    estado: IFodaEstados,
     entradas: number,
     observacion?: string,
     Fcantidad: number,
@@ -37,5 +46,6 @@ export const DefaultFoda: IFoda = {
     Dcantidad: 0,
     Acantidad: 0,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    estado: IFodaEstados.Planning
 }
