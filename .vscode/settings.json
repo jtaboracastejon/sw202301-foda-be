@@ -8,6 +8,7 @@
         "Dcantidad",
         "Fcantidad",
         "observacion",
-        "Ocantidad"
+        "Ocantidad",
+        "ultimoacceso"
     ]
 }

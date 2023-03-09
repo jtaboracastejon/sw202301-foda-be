@@ -1,20 +1,17 @@
 import express from 'express';
-const router = express.Router();
+import { MongoDBConn } from '@dao/MongoDBConn';
+import { Usuarios } from '@libs/Usuarios/Usuarios';
+import { UsuariosDao } from '@dao/models/Usuarios/UsuariosDao';
 
-import {IUsuario, Usuarios} from '@libs/Usuarios/Usuarios';
 
-const usuariosModel = new Usuarios();
+const usuariosDao = new UsuariosDao(MongoDBConn);
+let usuariosModel: Usuarios;
 
-usuariosModel.add({
-    codigo: '',
-    correo: 'testing@test.com',
-    nombre: 'test',
-    password: 'sdsd',
-    roles: [
-        'admin',
-        'user'
-    ]
+usuariosDao.init().then(()=>{
+    usuariosModel = new Usuarios(usuariosDao);
 });
+
+const router = express.Router();
 
 router.get('/', (_req, res) => {
     const jsonUrls = {
@@ -27,69 +24,29 @@ router.get('/', (_req, res) => {
     res.status(200).json(jsonUrls);
 });
 
-router.get('/all', (_req, res) => {
-    res.status(200).json(usuariosModel.getAll());
+router.get('/all', async (_req, res) => {
+    res.status(200).json(await usuariosModel.getAll());
 });
-
-
-router.get('/byid/:id', (req, res) => {
-    const { id } = req.params;
-    const usuario = usuariosModel.getById(id);
-    if(usuario){
-        return res.status(200).json(usuario);
-    }
-    return res.status(404).json({error: "No se encontró el usuario"});
-});
-
-router.post('/new', (req, res) => {
-    const {
-        correo = "johndoe@test.com",
-        nombre = "John Doe",
-        password = "johndoe123",
-        roles = [
-            "guest"
-        ]
-    } = req.body;
-    const newUsuario: IUsuario = {
-        codigo: "",
-        correo,
-        nombre,
-        password,
-        roles
-    }
-    if(usuariosModel.add(newUsuario)){
-        return res.status(200).json({created: true});
-    }
-    return res.status(404).json({error: "Error al agregar un nuevo usuario"});
+router.post('/new', async (req, res) => {
+    const  newUser = req.body;
+    const result = await usuariosModel.newUser(newUser);
+    return res.status(200).json(result);
 })
-
-router.put('/upd/:id', (req, res) => {
+router.put('/upd/:id', async (req, res) => {
     const { id } = req.params;
-    const {
-        correo,
-        nombre,
-        password,
-        roles
-    } = req.body;
-    const updateUsuario: IUsuario = {
-        codigo: id,
-        correo,
-        nombre,
-        password,
-        roles
-    }
-    if(usuariosModel.update(updateUsuario)){
-        return res.status(200).json({updated: true});
-    }
-    return res.status(404).json({error: "Error al actualizar el usuario"});
+    const uptUser = req.body;
+    const result = await usuariosModel.updateUser(id, uptUser);
+    return res.status(200).json(result);
 });
-
-
-router.delete('/del/:id', (req, res) => {
-    const { id : codigo } = req.params;
-    if(usuariosModel.delete(codigo)){
-        return res.status(200).json({deleted: true});
-    }
-    return res.status(404).json({error: "Error al eliminar el usuario"});
+router.delete('/del/:id', async (req, res) => {
+    const { id } = req.params;
+    const result = await usuariosModel.deleteUser(id);
+    return res.status(200).json(result);
+});
+router.put('/upd/:id/ultimoacceso', async (req, res) => {
+    const { id } = req.params;
+    const ultimoacceso = new Date();
+    const result = await usuariosModel.setUltimoAcceso(id, ultimoacceso);
+    return res.status(200).json(result);
 });
 export default router;

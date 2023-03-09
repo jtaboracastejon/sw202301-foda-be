@@ -1,65 +1,48 @@
-export interface IUsuario {
-    codigo: string;
-    correo: string;
-    nombre: string;
-    password: string;
-    roles: string[];
-    creado?: Date;
-    ultimoAcceso?: Date;
-}
+import { IDataAccessObject } from "@dao/IDataAccessObject";
+import { UsuariosDao } from "@dao/models/Usuarios/UsuariosDao";
+import { DefaultUsuario, IUsuario } from "@dao/models/Usuarios/IUsuarios";
 
-export class Usuarios {
-    private usuarios: IUsuario[];
-    constructor() {
-        this.usuarios = [];
+export class Usuarios{
+    private usuariosDao: UsuariosDao;
+    constructor(usuarios: IDataAccessObject){
+        this.usuariosDao = usuarios as UsuariosDao;
     }
 
-    add(nuevoUsuario : IUsuario){
-        const date = new Date();
-        const nuevo : IUsuario = {
-            ...nuevoUsuario,
-            codigo: (Math.random() * 1000).toString() + new Date().getTime().toString(),
-            creado: date,
-            ultimoAcceso: date
-        };
-        this.usuarios.push(nuevo);
-        return true;
-    }
-
-    getAll(){
-        return this.usuarios;
-    }
-
-    getById(codigo: string){
-        const usuarioToReturn = this.usuarios.find((usu) => {
-            return usu.codigo === codigo;
-        });
-        return usuarioToReturn;
-    }
-
-    update(updateUsuario: IUsuario){
-        const newUsuarios : IUsuario[] = this.usuarios.map((usu)=>{
-            if(usu.codigo === updateUsuario.codigo){
-                return {...usu, ...updateUsuario, ultimoAcceso: new Date()}
+    public async newUser(usuario: IUsuario){
+        try {
+            const newUser: IUsuario = {
+                ...DefaultUsuario,
+                ...usuario
             }
-            return usu;
-        })
-        this.usuarios = newUsuarios;
-        return true;
+            const result = await this.usuariosDao.create(newUser);
+            console.log('newUser result:', result);
+            const rt = await this.usuariosDao.findByFilter({_id: result?.insertedId})
+            return rt;
+        } catch (error) {
+            console.error('newUser error:', error);
+            return null
+        }
     }
 
-    delete(codigo: string){
-        const empresasToDelete = this.usuarios.find((usu) => {
-            return usu.codigo === codigo;
-        });
+    public async getAll(){
+        return this.usuariosDao.findAll();
+    }
 
-        if(empresasToDelete){
-            const newUsuarios : IUsuario[] = this.usuarios.filter((usu) =>{
-                return usu.codigo !== codigo;
-            })
-            this.usuarios = newUsuarios;
-            return true;
-        }
-        return false;
+    private async setUpdates(userId: string, updateCmd: Partial<IUsuario>){
+        await this.usuariosDao.update(userId, { ...updateCmd, updatedAt: new Date() });
+        const updatedUsuario = await this.usuariosDao.findById(userId);
+        return updatedUsuario;
+    }
+
+    public updateUser(userId: string, uptUser: Partial<IUsuario>){
+        return this.setUpdates(userId, uptUser);
+    }
+
+    public async deleteUser(id: string){
+        return this.usuariosDao.delete(id);
+    }
+
+    public setUltimoAcceso(userId: string, ultimoAcceso: Date){
+        return this.setUpdates(userId, { ultimoAcceso });
     }
 }
