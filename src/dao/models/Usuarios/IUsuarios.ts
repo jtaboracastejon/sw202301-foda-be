@@ -1,23 +1,31 @@
 import { ObjectId } from "mongodb";
 import { IAuditable } from "../IAuditable";
 
+
+export enum EUserStates{
+    "ACT" = "Active",
+    "INA" = "Inactive",
+    "BLQ" = "Blocked"
+}
 export interface IUsuario extends IAuditable {
     _id?: ObjectId | String;
-    codigo?: string;
     correo: string;
     nombre: string;
     password: string;
     roles: Array<String|number>;
-    ultimoAcceso: Date;
+    ultimoAcceso?: Date;
+    state: EUserStates;
+    pswExpires: Date;
+    avatar?: string;
 }
 
 export const DefaultUsuario: IUsuario = {
-    codigo: "",
     correo: "",
     nombre: "",
     password: "",
-    roles: ["guest"],
+    roles: ["public"],
+    state: EUserStates.ACT,
     createdAt: new Date(),
     updatedAt: new Date(),
-    ultimoAcceso: undefined
+    pswExpires: new Date (new Date().getTime() + (3 * 30 * 24 * 60 * 60 * 1000))
 }

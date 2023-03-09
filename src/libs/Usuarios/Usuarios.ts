@@ -1,6 +1,7 @@
 import { IDataAccessObject } from "@dao/IDataAccessObject";
 import { UsuariosDao } from "@dao/models/Usuarios/UsuariosDao";
-import { DefaultUsuario, IUsuario } from "@dao/models/Usuarios/IUsuarios";
+import { IUsuario } from "@dao/models/Usuarios/IUsuarios";
+import { Security } from "@server/utils/Security";
 
 export class Usuarios{
     private usuariosDao: UsuariosDao;
@@ -10,13 +11,11 @@ export class Usuarios{
 
     public async newUser(usuario: IUsuario){
         try {
-            const newUser: IUsuario = {
-                ...DefaultUsuario,
-                ...usuario
-            }
-            const result = await this.usuariosDao.create(newUser);
+            usuario.password = Security.encodePassword(usuario.password);
+            const result = await this.usuariosDao.create(usuario);
             console.log('newUser result:', result);
-            const rt = await this.usuariosDao.findByFilter({_id: result?.insertedId})
+            const rt = await this.usuariosDao.findOneByFilter({_id: result?.insertedId})
+            delete rt.password
             return rt;
         } catch (error) {
             console.error('newUser error:', error);
@@ -44,5 +43,18 @@ export class Usuarios{
 
     public setUltimoAcceso(userId: string, ultimoAcceso: Date){
         return this.setUpdates(userId, { ultimoAcceso });
+    }
+
+    public async loginUser(email:string, password:string){
+        try {
+            const dbUser = await this.usuariosDao.findOneByFilter({email});
+            if(Security.verifyPassword(password, dbUser.password)){
+                delete dbUser.password;
+                //JWT
+            }
+        } catch (error) {
+            console.error(error)
+            throw new Error("Can't validate credentials");
+        }
     }
 }
