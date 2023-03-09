@@ -2,7 +2,7 @@ import { MongoDAOBase } from "@server/dao/MongoDAOBase";
 import { IDBConnection } from "@server/dao/IDBConnection";
 import { IFoda, DefaultFoda } from '@dao/models/FODA/IFoda';
 import { IDataAccessObject } from "@dao/IDataAccessObject";
-import { ObjectId, UpdateResult } from "mongodb";
+import { ObjectId } from "mongodb";
 
 export class FodaDao extends MongoDAOBase<IFoda>{
     private empresaDao: IDataAccessObject;
